@@ -30,7 +30,7 @@ class MainActivity : ComponentActivity() {
 
             Scaffold(
                 topBar = {
-                    BottomNav(navController)
+                    TopNav(navController)
                 }
             ) { padding ->
                 NavHost(

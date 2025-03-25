@@ -17,7 +17,7 @@ import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomNav(navController: NavController) {
+fun TopNav(navController: NavController) {
     TopAppBar(
         navigationIcon = {
             IconButton(onClick = {
