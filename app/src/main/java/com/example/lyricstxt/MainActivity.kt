@@ -10,8 +10,18 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.lyricstxt.data.HistoryRepository
+import com.example.lyricstxt.data.MyDatabase
 
 class MainActivity : ComponentActivity() {
+
+    private val db by lazy {
+        MyDatabase.getDatabase(applicationContext)
+    }
+    private val repo by lazy {
+        HistoryRepository(db.historyDao())
+    }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
