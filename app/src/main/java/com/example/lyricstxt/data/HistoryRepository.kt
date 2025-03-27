@@ -9,4 +9,8 @@ class HistoryRepository(private val dao: HistoryDao) {
     fun getAll() : List<HistoryEntry> {
         return dao.getAll()
     }
+
+    fun getMostRecent() : HistoryEntry? {
+        return dao.getMostRecent()
+    }
 }

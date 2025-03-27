@@ -27,6 +27,9 @@ interface HistoryDao {
 
     @Insert
     fun add(entry: HistoryEntry)
+
+    @Query("SELECT * FROM history_table ORDER BY id DESC LIMIT 1")
+    fun getMostRecent() : HistoryEntry?
 }
 
 //Database
