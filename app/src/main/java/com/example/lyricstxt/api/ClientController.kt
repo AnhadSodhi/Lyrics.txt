@@ -1,19 +1,22 @@
 package com.example.lyricstxt.api
 
-import com.example.lyricstxt.R
+import kotlinx.coroutines.runBlocking
 
-class ClientController {
+
+class ClientController(private val auth: String, private val refresh: String) {
+    private var token: String
+
     init {
-        val auth = R.string.encoded_base_64_id_and_secret
-        val refresh = R.string.refresh_token
-//        val token = getAccessToken(auth, refresh)
+        runBlocking {
+            token = getAccessToken(auth, refresh)
+        }
     }
 
-//    suspend fun getSongAndProgress() : Pair<Song, Int> {
-//        return getCurrentSong(token)
-//    }
-//
-//    suspend fun getLyricsAndTimes() : Pair<MutableList<Long>, MutableList<String>> {
-//        return getLyrics(song)
-//    }
+    suspend fun getSongAndProgress() : Pair<Song, Long> {
+        return getCurrentSong(token)
+    }
+
+    suspend fun getTimesAndLyrics(song: Song) : Pair<MutableList<Long>, MutableList<String>> {
+        return getLyrics(song)
+    }
 }
