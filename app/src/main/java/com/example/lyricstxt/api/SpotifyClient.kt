@@ -33,7 +33,6 @@ suspend fun getAccessToken(auth: String, refreshToken: String) : String {
             "grant_type=refresh_token&refresh_token=$refreshToken"
         )
     }
-    println(response.status)
     val jsonString = response.bodyAsText()
     val jsonObject = JsonParser.parseString(jsonString).asJsonObject
     return jsonObject.get("access_token").asString
@@ -49,7 +48,6 @@ suspend fun getCurrentSong(accessToken: String) : Pair<Song, Long> {
         }
     }
     val response = client.get(SPOTIFY_GET_SONG_ENDPOINT)
-    println(response.status)
     val jsonString = response.bodyAsText()
     val jsonObject = JsonParser.parseString(jsonString).asJsonObject
 
@@ -66,7 +64,6 @@ suspend fun getCurrentSong(accessToken: String) : Pair<Song, Long> {
     val progress = jsonObject.get("progress_ms").asLong
 
     val (s, a) = sanitizeInfo(song, artist) ?: Pair("Unknown", "Unknown")
-
     return Pair(Song(s, a, img), progress)
 }
 
