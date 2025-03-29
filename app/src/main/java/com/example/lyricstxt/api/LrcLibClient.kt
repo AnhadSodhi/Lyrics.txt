@@ -23,6 +23,9 @@ suspend fun getLyrics(song: Song) : Pair<MutableList<Long>, MutableList<String>>
         parameter("track_name", song.song)
         parameter("artist_name", song.artist)
     }
+    if (response.status.value != 200) {
+        throw Exception("Failed to fetch lyrics: ${response.status.value}")
+    }
     val jsonString = response.bodyAsText()
     val jsonObject = JsonParser.parseString(jsonString).asJsonObject
     val syncedLyrics = jsonObject.get("syncedLyrics").asString.split("\n")

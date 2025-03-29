@@ -20,18 +20,26 @@ import coil3.compose.AsyncImage
 import com.example.lyricstxt.data.HistoryEntry
 import com.example.lyricstxt.data.HistoryRepository
 
-// use https://m3.material.io/components/lists/specs
-
 @Composable
 fun History(repo: HistoryRepository) {
-    val entries = repo.getAll()
-    if (entries.isEmpty()) {
-        Text("No songs played yet!")
-    }
-    else {
-        LazyColumn {
-            items(entries.size) {
-                EntryCard(entries[it])
+    val entries = remember { repo.getAll().toMutableStateList() }
+
+    Column {
+        Button(onClick = {
+            repo.wipe()
+            entries.clear()
+        }) {
+            Text("Clear history")
+        }
+
+        if (entries.isEmpty()) {
+            Text("No songs played yet!")
+        }
+        else {
+            LazyColumn {
+                items(entries.size) {
+                    EntryCard(entries[it])
+                }
             }
         }
     }

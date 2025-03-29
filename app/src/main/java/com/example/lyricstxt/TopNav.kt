@@ -34,11 +34,6 @@ fun TopNav(navController: NavController) {
 
         actions = {
             IconButton(onClick = {
-                navController.navigate(navController.currentDestination?.route ?: "home")
-            }) {
-                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(30.dp))
-            }
-            IconButton(onClick = {
                 navController.navigate("home")
             }) {
                 Icon(Icons.Default.Home, contentDescription = null, modifier = Modifier.size(30.dp))

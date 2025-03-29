@@ -37,14 +37,28 @@ fun Home(historyRepository: HistoryRepository) {
     var startTime by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(Unit) {
-        val (song, progress) = clientController.getSongAndProgress()
-        val (lineTimes, songLyrics) = clientController.getTimesAndLyrics(song)
+        var song: Song
+        var progress: Long
+        try {
+            val (s, p) = clientController.getSongAndProgress()
+            song = s
+            progress = p
+            launch { addSongToDb(song, historyRepository) }
+        } catch (e: Exception) {
+            song = Song("", "", "")
+            progress = 0L
+        }
 
-        times = lineTimes
-        lyrics = songLyrics
+        try {
+            val (lineTimes, songLyrics) = clientController.getTimesAndLyrics(song)
+            times = lineTimes
+            lyrics = songLyrics
+        } catch (e: Exception) {
+            times = emptyList()
+            lyrics = listOf("Error fetching lyrics - check that Spotify is running and the current song is supported.")
+        }
+
         startTime = System.currentTimeMillis() - progress
-
-        launch { addSongToDb(song, historyRepository) }
     }
 
     LaunchedEffect(startTime, times) {
@@ -89,10 +103,7 @@ fun addSongToDb(s: Song, repo: HistoryRepository) {
         img = s.img
     )
     val recentSong = repo.getMostRecent()
-    println(songEntry)
-    println(recentSong)
     if (recentSong == null || recentSong != songEntry) {
         repo.insertEntity(songEntry)
-        println("ADDED")
     }
 }
