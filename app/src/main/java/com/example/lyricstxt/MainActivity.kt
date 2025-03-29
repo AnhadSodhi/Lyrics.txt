@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
                         Home(repo)
                     }
                     composable("history") {
-
+                        History(repo)
                     }
                 }
             }

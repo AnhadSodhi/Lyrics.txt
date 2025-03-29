@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -32,7 +33,8 @@ fun Home(historyRepository: HistoryRepository) {
 
     var lyrics by remember { mutableStateOf(emptyList<String>()) }
     var times by remember { mutableStateOf(emptyList<Long>()) }
-    var currentLineIndex by remember { mutableStateOf(0) }
+    var currentLineIndex by remember { mutableIntStateOf(0) }
+    var startTime by remember { mutableStateOf<Long?>(null) }
 
     LaunchedEffect(Unit) {
         val (song, progress) = clientController.getSongAndProgress()
@@ -40,20 +42,25 @@ fun Home(historyRepository: HistoryRepository) {
 
         times = lineTimes
         lyrics = songLyrics
+        startTime = System.currentTimeMillis() - progress
 
         launch { addSongToDb(song, historyRepository) }
+    }
 
-        // Start updating the current line index based on the progress
-        var currentTime = progress
+    LaunchedEffect(startTime, times) {
+        val offset = 500
         while (true) {
-            val newIndex = times.indexOfLast { it <= currentTime }
+            val elapsedTime = System.currentTimeMillis() - (startTime ?: 0L)
+
+            val newIndex = times.indexOfLast { it <= elapsedTime + offset }.coerceAtLeast(0)
             if (newIndex != currentLineIndex) {
                 currentLineIndex = newIndex
             }
+
             delay(100) // Update every 100ms
-            currentTime += 100 // Simulate progress increment in milliseconds
         }
     }
+
 
     LazyColumn(
         modifier = Modifier
@@ -61,14 +68,16 @@ fun Home(historyRepository: HistoryRepository) {
             .padding(16.dp)
     ) {
         itemsIndexed(lyrics) { index, line ->
-            val isCurrentLine = index == currentLineIndex
-            Text(
-                text = line,
-                fontSize = 20.sp,
-                fontWeight = if (isCurrentLine) FontWeight.Bold else FontWeight.Normal,
-                color = if (isCurrentLine) Color.Black else Color.Gray,
-                modifier = Modifier.padding(vertical = 4.dp)
-            )
+            if (index >= currentLineIndex) {
+                val isCurrentLine = index == currentLineIndex
+                Text(
+                    text = line,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isCurrentLine) Color.Black else Color.Gray,
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
         }
     }
 }
@@ -80,7 +89,10 @@ fun addSongToDb(s: Song, repo: HistoryRepository) {
         img = s.img
     )
     val recentSong = repo.getMostRecent()
+    println(songEntry)
+    println(recentSong)
     if (recentSong == null || recentSong != songEntry) {
         repo.insertEntity(songEntry)
+        println("ADDED")
     }
 }

@@ -31,10 +31,10 @@ suspend fun getLyrics(song: Song) : Pair<MutableList<Long>, MutableList<String>>
     val lyrics = mutableListOf<String>()
 
     for (line in syncedLyrics) {
-        val matchResult = Regex("""\[(\d{2}):(\d{2})\.(\d{2})\](.*)""").find(line)
+        val matchResult = Regex("""\[(\d{2}):(\d{2}\.\d{2})\](.*)""").find(line)
         if (matchResult != null) {
-            val (hours, minutes, seconds, lyric) = matchResult.destructured
-            val timeInMillis = (hours.toLong() * 3600 + minutes.toLong() * 60 + seconds.toLong()) * 1000
+            val (minutes, seconds, lyric) = matchResult.destructured
+            val timeInMillis = (minutes.toLong() * 60 * 1000) + (seconds.toFloat() * 1000).toLong()
             times.add(timeInMillis)
             lyrics.add(lyric)
         }

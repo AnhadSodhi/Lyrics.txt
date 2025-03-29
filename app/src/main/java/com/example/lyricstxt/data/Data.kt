@@ -3,12 +3,14 @@ package com.example.lyricstxt.data
 import android.content.Context
 import androidx.room.Dao
 import androidx.room.Database
+import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import kotlin.reflect.typeOf
 
 //Row
 @Entity(tableName = "history_table")
@@ -17,12 +19,22 @@ data class HistoryEntry (
     val song: String?,
     val artist: String?,
     val img: String?
-)
+) {
+    override fun equals(other: Any?) : Boolean {
+        if (other is HistoryEntry) {
+            return song == other.song &&
+                    artist == other.artist &&
+                    img == other.img
+        }
+        else
+            return false
+    }
+}
 
 //Data Access Object
 @Dao
 interface HistoryDao {
-    @Query("SELECT * FROM history_table")
+    @Query("SELECT * FROM history_table ORDER BY id DESC")
     fun getAll() : List<HistoryEntry>
 
     @Query("SELECT * FROM history_table ORDER BY id DESC LIMIT 1")
@@ -30,6 +42,9 @@ interface HistoryDao {
 
     @Insert
     fun add(entry: HistoryEntry)
+
+    @Query("DELETE FROM history_table")
+    fun wipe()
 }
 
 //Database

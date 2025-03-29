@@ -14,4 +14,8 @@ class HistoryRepository(private val dao: HistoryDao) {
         dao.add(entry)
     }
 
+    fun wipe() {
+        dao.wipe()
+    }
+
 }
