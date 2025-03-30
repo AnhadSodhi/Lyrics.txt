@@ -29,6 +29,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            val clientController = ClientController(
+                stringResource(R.string.encoded_base_64_id_and_secret),
+                stringResource(R.string.refresh_token)
+            )
 
             Scaffold(
                 topBar = {
@@ -41,7 +45,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(padding)
                 ) {
                     composable("home") {
-                        Home(repo)
+                        Home(repo, clientController)
                     }
                     composable("history") {
                         History(repo)
