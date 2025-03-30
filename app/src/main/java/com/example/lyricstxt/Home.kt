@@ -27,9 +27,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(historyRepository: HistoryRepository, clientController: ClientController) {
-    val auth = stringResource(R.string.encoded_base_64_id_and_secret)
-    val refresh = stringResource(R.string.refresh_token)
-
     var lyrics by remember { mutableStateOf(emptyList<String>()) }
     var times by remember { mutableStateOf(emptyList<Long>()) }
     var currentLineIndex by remember { mutableIntStateOf(0) }
