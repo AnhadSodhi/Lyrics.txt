@@ -51,7 +51,7 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
             lyrics = songLyrics
         } catch (e: Exception) {
             times = emptyList()
-            lyrics = listOf("Error fetching lyrics - check that Spotify is running and the current song is supported.")
+            lyrics = listOf("Error fetching lyrics - check that a song is playing and it is supported.")
         }
 
         startTime = System.currentTimeMillis() - progress
