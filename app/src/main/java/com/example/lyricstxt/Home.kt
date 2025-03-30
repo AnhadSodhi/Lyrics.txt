@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.api.Song
 import com.example.lyricstxt.data.HistoryEntry
@@ -19,19 +20,21 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun Home(historyRepository: HistoryRepository, clientController: ClientController) {
+fun Home(historyRepository: HistoryRepository, clientController: ClientController, navController: NavController) {
     var lyrics by remember { mutableStateOf(emptyList<String>()) }
     var times by remember { mutableStateOf(emptyList<Long>()) }
     var currentLineIndex by remember { mutableIntStateOf(0) }
     var startTime by remember { mutableStateOf<Long?>(null) }
+    var song by remember { mutableStateOf(Song("", "", "")) }
 
-    LaunchedEffect(Unit) {
-        var song: Song
+    LaunchedEffect(song) {
+        lyrics = listOf("Loading...")
         var progress: Long
+        val offset = 500
         try {
             val (s, p) = clientController.getSongAndProgress()
             song = s
-            progress = p
+            progress = p+offset
             launch { addSongToDb(song, historyRepository) }
         } catch (e: Exception) {
             song = Song("", "", "")
@@ -48,14 +51,15 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
         }
 
         startTime = System.currentTimeMillis() - progress
+
+        launch { checkSongChanged(clientController, song, navController) }
     }
 
     LaunchedEffect(startTime, times) {
-        val offset = 500
         while (true) {
             val elapsedTime = System.currentTimeMillis() - (startTime ?: 0L)
 
-            val newIndex = times.indexOfLast { it <= elapsedTime + offset }.coerceAtLeast(0)
+            val newIndex = times.indexOfLast { it <= elapsedTime }.coerceAtLeast(0)
             if (newIndex != currentLineIndex) {
                 currentLineIndex = newIndex
             }
@@ -63,7 +67,6 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
             delay(100) // Update every 100ms
         }
     }
-
 
     LazyColumn(
         modifier = Modifier
@@ -82,6 +85,22 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
                 )
             }
         }
+    }
+}
+
+suspend fun checkSongChanged(clientController: ClientController, song: Song, navController: NavController) {
+    while (true) {
+        try {
+            val (newSong, _) = clientController.getSongAndProgress()
+            if (newSong.song != song.song) {
+                navController.navigate("home")
+                break
+            }
+        } catch (_: Exception) {
+
+        }
+
+        delay(500) // Check twice every second
     }
 }
 

@@ -45,7 +45,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(padding)
                 ) {
                     composable("home") {
-                        Home(repo, clientController)
+                        Home(repo, clientController, navController)
                     }
                     composable("history") {
                         History(repo)
