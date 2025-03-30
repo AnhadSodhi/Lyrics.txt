@@ -21,24 +21,22 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(historyRepository: HistoryRepository, clientController: ClientController, navController: NavController) {
-    var lyrics by remember { mutableStateOf(emptyList<String>()) }
+    var lyrics by remember { mutableStateOf(listOf("Loading...")) }
     var times by remember { mutableStateOf(emptyList<Long>()) }
     var currentLineIndex by remember { mutableIntStateOf(0) }
     var startTime by remember { mutableStateOf<Long?>(null) }
     var song by remember { mutableStateOf(Song("", "", "")) }
 
     LaunchedEffect(song) {
-        lyrics = listOf("Loading...")
-        var progress: Long
         val offset = 500
         try {
             val (s, p) = clientController.getSongAndProgress()
             song = s
-            progress = p+offset
+            startTime = System.currentTimeMillis() - (p + offset)
             launch { addSongToDb(song, historyRepository) }
         } catch (e: Exception) {
             song = Song("", "", "")
-            progress = 0L
+            startTime = 0L
         }
 
         try {
@@ -46,11 +44,8 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
             times = lineTimes
             lyrics = songLyrics
         } catch (e: Exception) {
-            times = emptyList()
             lyrics = listOf("Error fetching lyrics - check that a song is playing and it is supported.")
         }
-
-        startTime = System.currentTimeMillis() - progress
 
         launch { checkSongChanged(clientController, song, navController) }
     }
@@ -59,7 +54,7 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
         while (true) {
             val elapsedTime = System.currentTimeMillis() - (startTime ?: 0L)
 
-            val newIndex = times.indexOfLast { it <= elapsedTime }.coerceAtLeast(0)
+            val newIndex = times.indexOfLast { it <= elapsedTime }
             if (newIndex != currentLineIndex) {
                 currentLineIndex = newIndex
             }
@@ -96,10 +91,7 @@ suspend fun checkSongChanged(clientController: ClientController, song: Song, nav
                 navController.navigate("home")
                 break
             }
-        } catch (_: Exception) {
-
-        }
-
+        } catch (_: Exception) { }
         delay(500) // Check twice every second
     }
 }
