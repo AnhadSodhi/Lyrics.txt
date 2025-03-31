@@ -1,10 +1,7 @@
 package com.example.lyricstxt.api
 
-import androidx.compose.ui.res.stringResource
-import com.example.lyricstxt.R
 import com.google.gson.JsonParser
 import io.ktor.client.HttpClient
-import io.ktor.client.call.body
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
@@ -15,8 +12,6 @@ import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
-import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
 
 suspend fun getAccessToken(auth: String, refreshToken: String) : String {
     val client = HttpClient {
@@ -52,16 +47,20 @@ suspend fun getCurrentSong(accessToken: String) : Pair<Song, Long> {
     val jsonObject = JsonParser.parseString(jsonString).asJsonObject
 
     val item = jsonObject.getAsJsonObject("item")
-    val album = item.getAsJsonObject("album")
-    val images = album.getAsJsonArray("images")
-    val img = images[0].asJsonObject.get("url").asString
-
-    val artists = item.getAsJsonArray("artists")
-    val artist = artists[0].asJsonObject.get("name").asString
-
     val song = item.get("name").asString
-
+    var artist = ""
+    var img = ""
     val progress = jsonObject.get("progress_ms").asLong
+
+    try {
+        val album = item.getAsJsonObject("album")
+        val images = album.getAsJsonArray("images")
+        img = images[0].asJsonObject.get("url").asString
+
+        val artists = item.getAsJsonArray("artists")
+        artist = artists[0].asJsonObject.get("name").asString
+
+    } catch (_: Exception) { }
 
     val (s, a) = sanitizeInfo(song, artist) ?: Pair("Unknown", "Unknown")
     return Pair(Song(s, a, img), progress)

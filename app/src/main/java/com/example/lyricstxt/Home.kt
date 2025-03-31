@@ -43,9 +43,7 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
             val (lineTimes, songLyrics) = clientController.getTimesAndLyrics(song)
             times = lineTimes
             lyrics = songLyrics
-        } catch (e: Exception) {
-            lyrics = listOf("Error fetching lyrics - check that a song is playing and it is supported.")
-        }
+        } catch (_: Exception) { }
 
         launch { checkSongChanged(clientController, song, navController) }
     }
