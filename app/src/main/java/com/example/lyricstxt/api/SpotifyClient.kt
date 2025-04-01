@@ -47,7 +47,7 @@ suspend fun getCurrentSong(accessToken: String) : Pair<Song, Long> {
     val jsonObject = JsonParser.parseString(jsonString).asJsonObject
 
     val item = jsonObject.getAsJsonObject("item")
-    val song = item.get("name").asString
+    var song = item.get("name").asString
     var artist = ""
     var img = ""
     val progress = jsonObject.get("progress_ms").asLong
@@ -60,10 +60,13 @@ suspend fun getCurrentSong(accessToken: String) : Pair<Song, Long> {
         val artists = item.getAsJsonArray("artists")
         artist = artists[0].asJsonObject.get("name").asString
 
-    } catch (_: Exception) { }
-
-    val (s, a) = sanitizeInfo(song, artist) ?: Pair("Unknown", "Unknown")
-    return Pair(Song(s, a, img), progress)
+    } catch (_: Exception) {
+    } finally {
+        val (s, a) = sanitizeInfo(song, artist) ?: Pair("Unknown", "Unknown")
+        song = s
+        artist = a
+    }
+    return Pair(Song(song, artist, img), progress)
 }
 
 fun sanitizeInfo(song: String?, artist: String?) : Pair<String, String>? {
