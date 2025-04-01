@@ -2,23 +2,14 @@ package com.example.lyricstxt.api
 
 import com.google.gson.JsonParser
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
-import io.ktor.client.request.header
 import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpHeaders
-import io.ktor.serialization.gson.gson
 
-suspend fun getAccessToken(auth: String, refreshToken: String) : String {
-    val client = HttpClient {
-        install(ContentNegotiation) {
-            gson()
-        }
-    }
+suspend fun getAccessToken(client: HttpClient, auth: String, refreshToken: String) : String {
     val response = client.post(SPOTIFY_TOKEN_ENDPOINT) {
         headers {
             append(HttpHeaders.Authorization, auth)
@@ -33,15 +24,7 @@ suspend fun getAccessToken(auth: String, refreshToken: String) : String {
     return jsonObject.get("access_token").asString
 }
 
-suspend fun getCurrentSong(accessToken: String) : Pair<Song, Long> {
-    val client = HttpClient {
-        install(ContentNegotiation) {
-            gson()
-        }
-        defaultRequest {
-            header(HttpHeaders.Authorization, "Bearer $accessToken")
-        }
-    }
+suspend fun getCurrentSong(client: HttpClient) : Pair<Song, Long> {
     val response = client.get(SPOTIFY_GET_SONG_ENDPOINT)
     val jsonString = response.bodyAsText()
     val jsonObject = JsonParser.parseString(jsonString).asJsonObject

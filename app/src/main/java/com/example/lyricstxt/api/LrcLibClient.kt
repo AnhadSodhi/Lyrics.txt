@@ -2,18 +2,11 @@ package com.example.lyricstxt.api
 
 import com.google.gson.JsonParser
 import io.ktor.client.HttpClient
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.get
 import io.ktor.client.request.parameter
 import io.ktor.client.statement.bodyAsText
-import io.ktor.serialization.gson.gson
 
-suspend fun getLyrics(song: Song) : Pair<MutableList<Long>, MutableList<String>> {
-    val client = HttpClient {
-        install(ContentNegotiation) {
-            gson()
-        }
-    }
+suspend fun getLyrics(client: HttpClient, song: Song) : Pair<MutableList<Long>, MutableList<String>> {
     val response = client.get(LRCLIB_ENDPOINT) {
         parameter("track_name", song.song.replace("(English Cover)", "").trim())
         parameter("artist_name", song.artist)
