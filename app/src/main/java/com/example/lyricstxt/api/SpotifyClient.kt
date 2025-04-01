@@ -56,6 +56,7 @@ fun sanitizeInfo(song: String?, artist: String?) : Pair<String, String>? {
     if (song.isNullOrEmpty()) {
         return null
     }
+    // local song (no artist listed), my naming scheme is "[songname] by [artistname]"
     else if (artist.isNullOrEmpty()) {
         val (s, a) = song.split(" by ")
         return Pair(s.trim(), a.trim())

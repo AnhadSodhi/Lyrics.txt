@@ -20,6 +20,7 @@ fun LyricsList(lyrics: List<String>, currentLine: Int) {
             .padding(16.dp)
     ) {
         itemsIndexed(lyrics) { index, line ->
+            // only display the lyrics that haven't been sung yet
             if (index >= currentLine) {
                 val isCurrentLine = index == currentLine
                 Text(

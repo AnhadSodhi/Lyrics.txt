@@ -39,6 +39,7 @@ suspend fun timeUpdater(startTime: Long, times: List<Long>, currentLineIndex: Mu
     while (true) {
         val elapsedTime = System.currentTimeMillis() - startTime
 
+        // set currentLineIndex to the last index that is before the timestamp (most recent line)
         val newIndex = times.indexOfLast { it <= elapsedTime }
         if (newIndex != currentLineIndex.intValue) {
             currentLineIndex.intValue = newIndex
@@ -52,6 +53,8 @@ suspend fun songChangeChecker(clientController: ClientController, song: Song, na
     while (true) {
         try {
             val (newSong, _) = clientController.getSongAndProgress()
+
+            // if a new song is detected, reload the page
             if (newSong.song != song.song) {
                 navController.navigate("home")
                 break
@@ -68,6 +71,8 @@ fun addSongToDb(s: Song, repo: HistoryRepository) {
         img = s.img
     )
     val recentSong = repo.getMostRecent()
+
+    // if the song is not the same as the most recent one in the db, add it
     if (recentSong == null || recentSong != songEntry) {
         repo.insertEntity(songEntry)
     }

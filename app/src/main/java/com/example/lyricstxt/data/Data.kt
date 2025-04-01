@@ -3,14 +3,12 @@ package com.example.lyricstxt.data
 import android.content.Context
 import androidx.room.Dao
 import androidx.room.Database
-import androidx.room.Delete
 import androidx.room.Entity
 import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import kotlin.reflect.typeOf
 
 //Row
 @Entity(tableName = "history_table")
@@ -20,14 +18,14 @@ data class HistoryEntry (
     val artist: String?,
     val img: String?
 ) {
+    // used to check if the current song is the same as the most recent one in history (doesn't compare id)
     override fun equals(other: Any?) : Boolean {
-        if (other is HistoryEntry) {
-            return song == other.song &&
+        return if (other is HistoryEntry) {
+            song == other.song &&
                     artist == other.artist &&
                     img == other.img
-        }
-        else
-            return false
+        } else
+            false
     }
 }
 

@@ -8,6 +8,7 @@ import io.ktor.client.statement.bodyAsText
 
 suspend fun getLyrics(client: HttpClient, song: Song) : Pair<MutableList<Long>, MutableList<String>> {
     val response = client.get(LRCLIB_ENDPOINT) {
+        // remove "(English Cover)" from the song name, since some of my songs have that
         parameter("track_name", song.song.replace("(English Cover)", "").trim())
         parameter("artist_name", song.artist)
     }

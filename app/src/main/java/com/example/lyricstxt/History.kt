@@ -22,6 +22,7 @@ fun History(repo: HistoryRepository) {
     val entries = remember { repo.getAll().toMutableStateList() }
 
     Column(modifier = Modifier.padding(16.dp)) {
+        // clear history button
         Button(onClick = {
             repo.wipe()
             entries.clear()
@@ -33,6 +34,7 @@ fun History(repo: HistoryRepository) {
             Text("Clear history")
         }
 
+        // display song history
         if (entries.isEmpty()) {
             Text("No songs played yet!", fontWeight = FontWeight.Bold, fontSize = 20.sp)
         }
