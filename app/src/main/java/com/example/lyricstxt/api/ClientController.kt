@@ -21,10 +21,7 @@ class ClientController(private val auth: String, private val refresh: String) {
     init {
         runBlocking {
             token = getAccessToken(basicClient, auth, refresh)
-            authClient = HttpClient {
-                install(ContentNegotiation) {
-                    gson()
-                }
+            authClient = basicClient.config {
                 defaultRequest {
                     header(HttpHeaders.Authorization, "Bearer $token")
                 }
