@@ -13,6 +13,7 @@ import androidx.navigation.compose.*
 import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.data.HistoryRepository
 import com.example.lyricstxt.data.MyDatabase
+import com.example.lyricstxt.home.Home
 
 class MainActivity : ComponentActivity() {
 

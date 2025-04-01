@@ -1,4 +1,4 @@
-package com.example.lyricstxt
+package com.example.lyricstxt.home
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding

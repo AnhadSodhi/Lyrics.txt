@@ -1,4 +1,4 @@
-package com.example.lyricstxt
+package com.example.lyricstxt.home
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf

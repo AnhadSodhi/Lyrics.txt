@@ -1,4 +1,4 @@
-package com.example.lyricstxt
+package com.example.lyricstxt.home
 
 import androidx.compose.runtime.*
 import androidx.navigation.NavController
