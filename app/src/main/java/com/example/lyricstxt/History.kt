@@ -48,7 +48,10 @@ fun History(repo: HistoryRepository) {
 
 @Composable
 fun EntryCard(entry: HistoryEntry) {
-    Card(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+    Card(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
         Row(
             modifier = Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -56,21 +59,15 @@ fun EntryCard(entry: HistoryEntry) {
             AsyncImage(
                 model = entry.img,
                 contentDescription = null,
-                modifier = Modifier.size(64.dp).clip(RoundedCornerShape(8.dp)),
+                modifier = Modifier
+                    .size(64.dp)
+                    .clip(RoundedCornerShape(8.dp)),
             )
             Column(
-                modifier = Modifier
-                    .padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp)
             ) {
-                if (entry.song != null)
-                    Text(entry.song, fontWeight = FontWeight.Bold, fontSize = 20.sp)
-                else
-                    Text("Unknown song", fontWeight = FontWeight.Bold, fontSize = 20.sp)
-
-                if (entry.artist != null)
-                    Text(entry.artist)
-                else
-                    Text("Unknown artist")
+                Text(entry.song ?: "Unknown song", fontWeight = FontWeight.Bold, fontSize = 20.sp)
+                Text(entry.artist ?: "Unknown artist")
             }
         }
     }
