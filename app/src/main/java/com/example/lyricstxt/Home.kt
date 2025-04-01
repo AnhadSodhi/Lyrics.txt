@@ -1,16 +1,6 @@
 package com.example.lyricstxt
 
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.api.Song
@@ -21,67 +11,44 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(historyRepository: HistoryRepository, clientController: ClientController, navController: NavController) {
-    var lyrics by remember { mutableStateOf(listOf("Loading...")) }
-    var times by remember { mutableStateOf(emptyList<Long>()) }
-    var currentLineIndex by remember { mutableIntStateOf(0) }
-    var startTime by remember { mutableStateOf<Long?>(null) }
-    var song by remember { mutableStateOf(Song("", "", "")) }
+    val homeState = remember { HomeState() }
 
-    LaunchedEffect(song) {
+    LaunchedEffect(Unit) {
         val offset = 500
         try {
-            val (s, p) = clientController.getSongAndProgress()
-            song = s
-            startTime = System.currentTimeMillis() - (p + offset)
-            launch { addSongToDb(song, historyRepository) }
+            val (song, progress) = clientController.getSongAndProgress()
+            homeState.setSongAndStartTime(song, System.currentTimeMillis() - (progress + offset))
+            launch { addSongToDb(homeState.song, historyRepository) }
         } catch (e: Exception) {
-            song = Song("", "", "")
-            startTime = 0L
+            homeState.setSongAndStartTime(Song("", "", ""))
         }
 
         try {
-            val (lineTimes, songLyrics) = clientController.getTimesAndLyrics(song)
-            times = lineTimes
-            lyrics = songLyrics
+            val (lineTimes, songLyrics) = clientController.getTimesAndLyrics(homeState.song)
+            homeState.setTimesAndLyrics(lineTimes, songLyrics)
         } catch (_: Exception) { }
 
-        launch { checkSongChanged(clientController, song, navController) }
+        launch { timeUpdater(homeState.startTime, homeState.times, homeState.currentLineIndex) }
+        launch { songChangeChecker(clientController, homeState.song, navController) }
     }
 
-    LaunchedEffect(startTime, times) {
-        while (true) {
-            val elapsedTime = System.currentTimeMillis() - (startTime ?: 0L)
+    LyricsList(homeState.lyrics, homeState.currentLineIndex.intValue)
+}
 
-            val newIndex = times.indexOfLast { it <= elapsedTime }
-            if (newIndex != currentLineIndex) {
-                currentLineIndex = newIndex
-            }
+suspend fun timeUpdater(startTime: Long, times: List<Long>, currentLineIndex: MutableIntState) {
+    while (true) {
+        val elapsedTime = System.currentTimeMillis() - startTime
 
-            delay(100) // Update every 100ms
+        val newIndex = times.indexOfLast { it <= elapsedTime }
+        if (newIndex != currentLineIndex.intValue) {
+            currentLineIndex.intValue = newIndex
         }
-    }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        itemsIndexed(lyrics) { index, line ->
-            if (index >= currentLineIndex) {
-                val isCurrentLine = index == currentLineIndex
-                Text(
-                    text = line,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCurrentLine) Color.Black else Color.Gray,
-                    modifier = Modifier.padding(vertical = 4.dp)
-                )
-            }
-        }
+        delay(100) // Update every 100ms
     }
 }
 
-suspend fun checkSongChanged(clientController: ClientController, song: Song, navController: NavController) {
+suspend fun songChangeChecker(clientController: ClientController, song: Song, navController: NavController) {
     while (true) {
         try {
             val (newSong, _) = clientController.getSongAndProgress()
