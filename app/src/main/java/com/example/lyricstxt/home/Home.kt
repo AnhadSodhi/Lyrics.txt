@@ -1,6 +1,7 @@
 package com.example.lyricstxt.home
 
 import androidx.compose.runtime.*
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.api.Song
@@ -11,7 +12,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(historyRepository: HistoryRepository, clientController: ClientController, navController: NavController) {
-    val homeState = remember { HomeState() }
+    val homeState: HomeState = viewModel()
 
     LaunchedEffect(Unit) {
         val offset = 500
@@ -28,21 +29,21 @@ fun Home(historyRepository: HistoryRepository, clientController: ClientControlle
             homeState.setTimesAndLyrics(lineTimes, songLyrics)
         } catch (_: Exception) { }
 
-        launch { timeUpdater(homeState.startTime, homeState.times, homeState.currentLineIndex) }
+        launch { timeUpdater(homeState) }
         launch { songChangeChecker(clientController, homeState.song, navController) }
     }
 
-    LyricsList(homeState.lyrics, homeState.currentLineIndex.intValue)
+    LyricsList(homeState.lyrics, homeState.currentLineIndex)
 }
 
-suspend fun timeUpdater(startTime: Long, times: List<Long>, currentLineIndex: MutableIntState) {
+suspend fun timeUpdater(homeState: HomeState) {
     while (true) {
-        val elapsedTime = System.currentTimeMillis() - startTime
+        val elapsedTime = System.currentTimeMillis() - homeState.startTime
 
         // set currentLineIndex to the last index that is before the timestamp (most recent line)
-        val newIndex = times.indexOfLast { it <= elapsedTime }
-        if (newIndex != currentLineIndex.intValue) {
-            currentLineIndex.intValue = newIndex
+        val newIndex = homeState.times.indexOfLast { it <= elapsedTime }
+        if (newIndex != homeState.currentLineIndex) {
+            homeState.currentLineIndex = newIndex
         }
 
         delay(100) // Update every 100ms

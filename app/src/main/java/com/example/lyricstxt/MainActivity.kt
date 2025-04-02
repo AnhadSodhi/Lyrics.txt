@@ -9,11 +9,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.data.HistoryRepository
 import com.example.lyricstxt.data.MyDatabase
 import com.example.lyricstxt.home.Home
+import com.example.lyricstxt.home.HomeState
 
 class MainActivity : ComponentActivity() {
 
@@ -28,6 +30,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val homeState = viewModel {
+                HomeState()
+            }
+
             val navController = rememberNavController()
             val clientController = ClientController(
                 stringResource(R.string.encoded_base_64_id_and_secret),
