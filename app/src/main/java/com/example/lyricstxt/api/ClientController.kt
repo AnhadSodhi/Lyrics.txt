@@ -6,26 +6,29 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
-import kotlinx.coroutines.runBlocking
 
 
-class ClientController(private val auth: String, private val refresh: String) {
-    private var token: String
-    private val basicClient = HttpClient {
-        install(ContentNegotiation) {
-            gson()
-        }
-    }
-    private var authClient: HttpClient
+class ClientController private constructor (
+    private val basicClient: HttpClient,
+    private val authClient: HttpClient
+) {
+    companion object {
+        suspend fun build(auth: String, refresh: String): ClientController {
+            val basicClient = HttpClient {
+                install(ContentNegotiation) {
+                    gson()
+                }
+            }
 
-    init {
-        runBlocking {
-            token = getAccessToken(basicClient, auth, refresh)
-            authClient = basicClient.config {
+            val token = getAccessToken(basicClient, auth, refresh)
+
+            val authClient = basicClient.config {
                 defaultRequest {
                     header(HttpHeaders.Authorization, "Bearer $token")
                 }
             }
+
+            return ClientController(basicClient, authClient)
         }
     }
 
