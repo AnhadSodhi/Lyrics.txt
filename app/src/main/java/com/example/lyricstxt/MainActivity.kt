@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
-import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.data.HistoryRepository
 import com.example.lyricstxt.data.MyDatabase
 import com.example.lyricstxt.home.Home
@@ -31,18 +30,13 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            val authString = stringResource(R.string.encoded_base_64_id_and_secret)
+            val refreshToken = stringResource(R.string.refresh_token)
             viewModel {
-                HomeState()
+                HomeState(authString, refreshToken)
             }
 
             val navController = rememberNavController()
-
-            val authString = stringResource(R.string.encoded_base_64_id_and_secret)
-            val refreshToken = stringResource(R.string.refresh_token)
-            val clientController: ClientController
-            runBlocking {
-                clientController = ClientController.build(authString, refreshToken)
-            }
 
             Scaffold(
                 topBar = {
@@ -56,7 +50,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(padding)
                 ) {
                     composable("home") {
-                        Home(repo, clientController, navController)
+                        Home(repo, navController)
                     }
                     composable("history") {
                         History(repo)

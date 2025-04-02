@@ -3,7 +3,6 @@ package com.example.lyricstxt.home
 import androidx.compose.runtime.*
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.lyricstxt.api.ClientController
 import com.example.lyricstxt.api.Song
 import com.example.lyricstxt.data.HistoryEntry
 import com.example.lyricstxt.data.HistoryRepository
@@ -11,26 +10,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun Home(historyRepository: HistoryRepository, clientController: ClientController, navController: NavController) {
+fun Home(historyRepository: HistoryRepository, navController: NavController) {
     val homeState: HomeState = viewModel()
 
     LaunchedEffect(Unit) {
         val offset = 500
-        try {
-            val (song, progress) = clientController.getSongAndProgress()
-            homeState.setSongAndStartTime(song, System.currentTimeMillis() - (progress + offset))
-            launch { addSongToDb(homeState.song, historyRepository) }
-        } catch (e: Exception) {
-            homeState.setSongAndStartTime(Song("", "", ""))
-        }
+        homeState.updateSongAndProgress(offset)
+        addSongToDb(homeState.song, historyRepository)
 
-        try {
-            val (lineTimes, songLyrics) = clientController.getTimesAndLyrics(homeState.song)
-            homeState.setTimesAndLyrics(lineTimes, songLyrics)
-        } catch (_: Exception) { }
+        homeState.updateTimesAndLyrics()
 
         launch { timeUpdater(homeState) }
-        launch { songChangeChecker(clientController, homeState.song, navController) }
+        launch { songChangeChecker(homeState, navController) }
     }
 
     LyricsList(homeState.lyrics, homeState.currentLineIndex)
@@ -50,13 +41,13 @@ suspend fun timeUpdater(homeState: HomeState) {
     }
 }
 
-suspend fun songChangeChecker(clientController: ClientController, song: Song, navController: NavController) {
+suspend fun songChangeChecker(homeState: HomeState, navController: NavController) {
     while (true) {
         try {
-            val (newSong, _) = clientController.getSongAndProgress()
+            val (newSong, _) = homeState.getSongAndProgress()
 
             // if a new song is detected, reload the page
-            if (newSong.song != song.song) {
+            if (newSong.song != homeState.song.song) {
                 navController.navigate("home")
                 break
             }
