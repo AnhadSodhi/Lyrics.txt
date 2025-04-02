@@ -11,7 +11,7 @@ import com.example.lyricstxt.api.Song
 class HomeState : ViewModel() {
     var lyrics by mutableStateOf(listOf("Loading..."))
     var times by mutableStateOf(emptyList<Long>())
-    val currentLineIndex = mutableIntStateOf(0)
+    var currentLineIndex by mutableIntStateOf(0)
     var startTime by mutableLongStateOf(0)
     var song by mutableStateOf(Song("", "", ""))
 
