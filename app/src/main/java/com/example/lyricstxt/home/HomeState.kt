@@ -5,9 +5,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.ViewModel
 import com.example.lyricstxt.api.Song
 
-class HomeState {
+class HomeState : ViewModel() {
     var lyrics by mutableStateOf(listOf("Loading..."))
     var times by mutableStateOf(emptyList<Long>())
     val currentLineIndex = mutableIntStateOf(0)
