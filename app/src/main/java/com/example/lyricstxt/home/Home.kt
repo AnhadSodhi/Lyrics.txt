@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Home(historyRepository: HistoryRepository, homeState: HomeState, navController: NavController) {
     LaunchedEffect(Unit) {
-        val offset = 1000
+        val offset = 500
         homeState.updateSongAndProgress(offset)
         launch { addSongToDb(homeState.song, historyRepository) }
         homeState.updateTimesAndLyrics()
