@@ -6,16 +6,15 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.*
 import com.example.lyricstxt.data.HistoryRepository
 import com.example.lyricstxt.data.MyDatabase
 import com.example.lyricstxt.home.Home
 import com.example.lyricstxt.home.HomeState
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : ComponentActivity() {
 
@@ -30,13 +29,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val authString = stringResource(R.string.encoded_base_64_id_and_secret)
-            val refreshToken = stringResource(R.string.refresh_token)
-            viewModel {
-                HomeState(authString, refreshToken)
-            }
-
             val navController = rememberNavController()
+            val homeState = HomeState(
+                stringResource(R.string.encoded_base_64_id_and_secret),
+                stringResource(R.string.refresh_token),
+                rememberCoroutineScope()
+            )
 
             Scaffold(
                 topBar = {
@@ -50,7 +48,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.padding(padding)
                 ) {
                     composable("home") {
-                        Home(repo, navController)
+                        Home(repo, homeState, navController)
                     }
                     composable("history") {
                         History(repo)
