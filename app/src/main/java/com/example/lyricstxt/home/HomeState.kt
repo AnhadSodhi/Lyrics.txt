@@ -1,25 +1,18 @@
 package com.example.lyricstxt.home
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.setValue
 import com.example.lyricstxt.api.Song
-import com.example.lyricstxt.api.getAccessToken
-import com.example.lyricstxt.api.getCurrentSong
-import com.example.lyricstxt.api.getLyrics
+import com.example.lyricstxt.api.*
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.header
 import io.ktor.http.HttpHeaders
 import io.ktor.serialization.gson.gson
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
-class HomeState(private val auth: String, private val refresh: String, private val initScope: CoroutineScope) {
+class HomeState(private val auth: String, private val refresh: String) {
     var lyrics by mutableStateOf(listOf("Loading..."))
     var times by mutableStateOf(emptyList<Long>())
     val currentLineIndex = mutableIntStateOf(0)
@@ -33,8 +26,8 @@ class HomeState(private val auth: String, private val refresh: String, private v
     }
     private var authClient: HttpClient? = null
 
-    init {
-        initScope.launch {
+    suspend fun getState(): HomeState {
+        if (authClient == null) {
             val token = getAccessToken(basicClient, auth, refresh)
             authClient = basicClient.config {
                 defaultRequest {
@@ -42,6 +35,7 @@ class HomeState(private val auth: String, private val refresh: String, private v
                 }
             }
         }
+        return this
     }
 
     suspend fun getSongAndProgress(): Pair<Song, Long> {

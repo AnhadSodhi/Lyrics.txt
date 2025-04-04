@@ -6,7 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -32,8 +31,7 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             val homeState = HomeState(
                 stringResource(R.string.encoded_base_64_id_and_secret),
-                stringResource(R.string.refresh_token),
-                rememberCoroutineScope()
+                stringResource(R.string.refresh_token)
             )
 
             Scaffold(
