@@ -38,7 +38,7 @@ suspend fun timeUpdater(startTime: Long, times: List<Long>, currentLineIndex: Mu
 suspend fun songChangeChecker(homeState: HomeState, navController: NavController) {
     while (true) {
         try {
-            val (newSong, _) = homeState.getState().getSongAndProgress()
+            val (newSong, _) = homeState.getSongAndProgress()
             // if a new song is detected, reload the page
             if (newSong.song != homeState.song.song) {
                 navController.navigate("home")

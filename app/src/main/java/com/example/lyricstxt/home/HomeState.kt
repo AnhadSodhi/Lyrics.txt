@@ -26,7 +26,7 @@ class HomeState(private val auth: String, private val refresh: String) {
     }
     private var authClient: HttpClient? = null
 
-    suspend fun getState(): HomeState {
+    private suspend fun initializeAuthClient(): HomeState {
         if (authClient == null) {
             val token = getAccessToken(basicClient, auth, refresh)
             authClient = basicClient.config {
@@ -39,6 +39,9 @@ class HomeState(private val auth: String, private val refresh: String) {
     }
 
     suspend fun getSongAndProgress(): Pair<Song, Long> {
+        if (authClient == null) {
+            initializeAuthClient()
+        }
         val authClient = authClient ?: return Pair(Song("", "", ""), 0)
         return getCurrentSong(authClient)
     }
